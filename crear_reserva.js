@@ -1,23 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- INICIALIZACIÓN DE DATOS ---
-    let allResources = JSON.parse(localStorage.getItem('schoolResources'));
-    let allReservations = JSON.parse(localStorage.getItem('schoolReservations'));
-    const DEMO_DATE = '2025-09-05'; // Viernes
+    // --- LECTURA DE DATOS ---
+    // Asumimos que datos.js ya se encargó de inicializar los datos si era necesario.
+    let allResources = JSON.parse(localStorage.getItem('schoolResources')) || [];
+    let allReservations = JSON.parse(localStorage.getItem('schoolReservations')) || [];
 
-    if (!allResources || allResources.length === 0) {
-        console.log("CREAR_RESERVA: No se encontraron recursos. Creando un set de datos de ejemplo completo...");
-        allResources = [
-            { id: 1, name: 'Proyector Epson', type: 'electronico', bloqueosFijos: [] },
-            { id: 2, name: 'Aula Magna', type: 'aula', bloqueosFijos: [{ "dia": 5, "horaInicio": "10:00", "horaFin": "11:30" }] },
-            { id: 3, name: 'Juego de Sillas', type: 'mobiliario', bloqueosFijos: [] }
-        ];
-        localStorage.setItem('schoolResources', JSON.stringify(allResources));
-        allReservations = [
-            { id: 102, resourceId: 1, fecha: DEMO_DATE, horaInicio: '14:00', horaFin: '15:00', estado: 'Confirmada' }
-        ];
-        localStorage.setItem('schoolReservations', JSON.stringify(allReservations));
-    }
-    
     // --- REFERENCIAS AL DOM ---
     const form = document.getElementById('reservation-form');
     const resourceSelect = document.getElementById('resource-select');
@@ -177,27 +163,12 @@ document.addEventListener('DOMContentLoaded', () => {
             nivel: document.getElementById('level-select').value,
             curso: document.getElementById('course-input').value,
             profesor: document.getElementById('professor-input').value,
-            profesorId: 1,
+            profesorId: 1, // Asumimos ID 1 para el Maestro de prueba
             descripcion: document.getElementById('description-input').value,
             estado: 'Confirmada',
             motivoBaja: null
         };
         
-        const start = timeToMinutes(newReservation.horaInicio);
-        const end = timeToMinutes(newReservation.horaFin);
-        const isOverlapping = allReservations.some(res => 
-            res.resourceId === newReservation.resourceId &&
-            res.fecha === newReservation.fecha &&
-            res.estado !== 'Cancelada' &&
-            start < timeToMinutes(res.horaFin) &&
-            end > timeToMinutes(res.horaInicio)
-        );
-
-        if (isOverlapping) {
-            alert('¡Error! El horario seleccionado se solapa con una reserva existente.');
-            return;
-        }
-
         allReservations.push(newReservation);
         localStorage.setItem('schoolReservations', JSON.stringify(allReservations));
 
