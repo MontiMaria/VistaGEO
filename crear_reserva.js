@@ -118,6 +118,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
     
+    // --- EVENT LISTENERS ---
+
     resourceSelect.addEventListener('change', () => {
         steps.date.classList.add('active');
         dateInput.value = '';
@@ -125,10 +127,36 @@ document.addEventListener('DOMContentLoaded', () => {
         steps.details.classList.remove('active');
         steps.submit.classList.remove('active');
     });
+    
     dateInput.addEventListener('change', updateAvailability);
+    
     startTimeSelect.addEventListener('change', updateEndTimeOptions);
-    endTimeSelect.addEventListener('change', () => { if (endTimeSelect.value) steps.details.classList.add('active'); });
 
+    endTimeSelect.addEventListener('change', () => { 
+        if (endTimeSelect.value) {
+            steps.details.classList.add('active');
+        }
+    });
+
+    // --- BLOQUE DE CÓDIGO FALTANTE AÑADIDO AQUÍ ---
+    // Este listener se encarga de revisar la sección de detalles y mostrar el botón de envío.
+    document.getElementById('step-details').addEventListener('input', () => {
+        const allRequiredFields = document.querySelectorAll('#step-details [required]');
+        const allFilled = [...allRequiredFields].every(field => field.value.trim() !== '');
+        
+        const submitButton = document.querySelector('#step-submit button');
+
+        if (allFilled) {
+            steps.submit.classList.add('active');
+            submitButton.disabled = false;
+        } else {
+            steps.submit.classList.remove('active');
+            submitButton.disabled = true;
+        }
+    });
+    // --- FIN DEL BLOQUE AÑADIDO ---
+
+    // --- INICIALIZACIÓN ---
     allResources.forEach(res => resourceSelect.add(new Option(`${res.name} (${res.type})`, res.id)));
     dateInput.min = new Date().toISOString().split("T")[0];
 });
