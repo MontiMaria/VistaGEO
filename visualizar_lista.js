@@ -1,23 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- SIMULACIÓN DE USUARIO Y DATOS ---
+    // --- LECTURA DE DATOS ---
+    // Asumimos que datos.js ya se encargó de inicializar los datos si era necesario.
+    let allReservations = JSON.parse(localStorage.getItem('schoolReservations')) || [];
+
+    // --- LÓGICA DE ROLES ---
     const users = {
         directivo: { role: 'Directivo', id: 0, name: 'Director/a' },
         maestro: { role: 'Maestro', id: 1, name: 'Juan Pérez' }
     };
     let currentUser = users.directivo;
-
-    const DEMO_DATE = '2025-09-05';
-    let allReservations = JSON.parse(localStorage.getItem('schoolReservations'));
-    
-    // Si no hay reservas, creamos un set de ejemplo con TODOS los campos
-    if (!allReservations) {
-        allReservations = [
-            { id: 101, resourceId: 2, profesorId: 2, profesor: 'María García', recurso: 'Aula Magna', tipoRecurso: 'aula', fecha: DEMO_DATE, horaInicio: '10:00', horaFin: '12:00', nivel: 'Secundario', curso: '1ro C', descripcion: 'Acto por el día del maestro.', estado: 'Confirmada', motivoBaja: null },
-            { id: 102, resourceId: 1, profesorId: 1, profesor: 'Juan Pérez', recurso: 'Proyector Epson', tipoRecurso: 'electronico', fecha: DEMO_DATE, horaInicio: '14:00', horaFin: '15:00', nivel: 'Primario', curso: '4to B', descripcion: 'Proyección de documental.', estado: 'Cancelada', motivoBaja: 'Cancelada por Juan Pérez: Ya no se necesita.' },
-            { id: 103, resourceId: 1, profesorId: 1, profesor: 'Juan Pérez', recurso: 'Proyector Epson', tipoRecurso: 'electronico', fecha: '2025-09-06', horaInicio: '09:00', horaFin: '10:00', nivel: 'Secundario', curso: '6to A', descripcion: 'Examen de Geografía.', estado: 'Confirmada', motivoBaja: null }
-        ];
-        localStorage.setItem('schoolReservations', JSON.stringify(allReservations));
-    }
 
     // --- REFERENCIAS AL DOM ---
     const roleSelector = document.getElementById('role-selector');
@@ -26,10 +17,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const confirmedList = document.getElementById('confirmed-list');
     const historyList = document.getElementById('history-list');
 
+    // --- FUNCIONES PRINCIPALES ---
     const createReservationCardHTML = (res) => {
         const statusClass = `status-${res.estado.toLowerCase()}`;
         const canCancel = currentUser.role === 'Maestro' && res.estado === 'Confirmada';
-        // Ahora res.nivel y res.curso tendrán valores y se mostrarán
         return `
             <li class="reservation-item-card" data-id="${res.id}">
                 <div class="main-info">
@@ -64,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const confirmBtn = cancelModal.querySelector('#confirm-cancel-btn');
         confirmBtn.onclick = () => {
             const reason = cancelModal.querySelector('#cancel-reason-input').value.trim();
-            if (!reason) { alert('El motivo es obligatorio.'); return; }
+            if (!reason) { alert('El motivo de la cancelación es obligatorio.'); return; }
             
             const index = allReservations.findIndex(r => r.id === reservationId);
             if (index !== -1) {
@@ -74,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             closeCancelModal();
-            renderLists(); // Se actualiza la lista al instante sin recargar la página
+            renderLists();
         };
     };
 
