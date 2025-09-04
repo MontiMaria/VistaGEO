@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Recursos - Escuela GEO</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-bars"></i> Escuela GEO</h2>
+            </div>
+            <nav class="sidebar-nav">
+                 <ul>
+                    <li><a href="index.html">Dashboard</a></li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="fas fa-cog"></i> Configuración <i class="fas fa-chevron-right icon-right"></i></a>
+                        <ul class="submenu">
+                            <li><a href="reserva.html">Gestión de Recursos</a></li>
+                            <li><a href="crear_reserva.html">Crear Reserva</a></li>
+                            <li><a href="visualizar_lista.html">Visualizar Reservas</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="main-header">
+                <h1>Gestión de Recursos</h1>
+            </header>
+
+            <div class="card form-container">
+                <h2><i class="fas fa-plus-circle"></i> Crear Nuevo Recurso</h2>
+                <form id="create-resource-form">
+                    <div class="form-group">
+                        <label for="resource-type">Tipo de Recurso</label>
+                        <select id="resource-type" name="type" required>
+                            <option value="" disabled selected>Seleccione un tipo...</option>
+                            <option value="aula">Aula</option>
+                            <option value="electronico">Recurso Electrónico</option>
+                            <option value="mobiliario">Mobiliario</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="resource-name">Nombre del Recurso</label>
+                        <input type="text" id="resource-name" name="name" placeholder="Ej: Proyector Epson H837A" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="resource-quantity">Cantidad</label>
+                        <input type="number" id="resource-quantity" name="quantity" min="1" value="1" required>
+                    </div>
+                    <hr>
+                    <h4><i class="fas fa-lock"></i> Horarios Fijos (Opcional)</h4>
+                    <p style="font-size:0.8rem; color:#666;">Añadí días y horas en los que este recurso siempre estará ocupado.</p>
+                    <div id="fixed-blocks-container"></div>
+                    <button type="button" id="add-block-btn" class="btn-secondary" style="margin-top:10px; background-color: #ddd; border:none; padding: 10px; cursor:pointer; border-radius: 8px;">
+                        <i class="fas fa-plus"></i> Añadir Bloqueo de Horario
+                    </button>
+                    <hr>
+                    <button type="submit" class="btn-submit">Crear Recurso</button>
+                </form>
+            </div>
+
+            <div class="card list-container">
+                <div class="list-header">
+                    <h2><i class="fas fa-list-ul"></i> Lista de Recursos Existentes</h2>
+                    <div class="filter-group">
+                        <label for="filter-type">Filtrar por:</label>
+                        <select id="filter-type">
+                            <option value="all">Todos los tipos</option>
+                            <option value="aula">Aulas</option>
+                            <option value="electronico">Recursos Electrónicos</option>
+                            <option value="mobiliario">Mobiliario</option>
+                        </select>
+                    </div>
+                </div>
+                <ul id="resource-list" class="resource-list-interactive"></ul>
+            </div>
+        </main>
+    </div>
+
+    <div id="delete-confirm-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <h3>Confirmar Eliminación</h3>
+            <p>Estás a punto de eliminar el recurso "<strong id="delete-resource-name"></strong>". Esta acción no se puede deshacer.</p>
+            <div class="form-group" style="text-align: left;">
+                <label for="delete-reason-input">Motivo de la baja (Requerido):</label>
+                <textarea id="delete-reason-input" rows="3" placeholder="Ej: El recurso se ha roto y será retirado." required></textarea>
+            </div>
+            <div class="modal-actions">
+                <button id="cancel-delete-btn" class="btn-secondary">Cancelar</button>
+                <button id="confirm-delete-btn" class="btn-danger">Sí, Eliminar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="add-block-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <h3>Añadir Bloqueo Fijo a "<strong id="add-block-resource-name"></strong>"</h3>
+            <div class="form-group-inline" style="margin-top: 20px;">
+                <select id="add-block-day" style="flex:2; padding:8px; border:1px solid #ccc; border-radius:4px;">
+                    <option value="1">Lunes</option><option value="2">Martes</option><option value="3">Miércoles</option>
+                    <option value="4">Jueves</option><option value="5">Viernes</option><option value="6">Sábado</option><option value="0">Domingo</option>
+                </select>
+                <input type="time" id="add-block-start-time" style="flex:1; padding:8px; border:1px solid #ccc; border-radius:4px;" required>
+                <input type="time" id="add-block-end-time" style="flex:1; padding:8px; border:1px solid #ccc; border-radius:4px;" required>
+            </div>
+            <div class="modal-actions">
+                <button id="cancel-add-block-btn" class="btn-secondary">Cancelar</button>
+                <button id="confirm-add-block-btn" class="btn-submit">Guardar Bloqueo</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="reserva.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

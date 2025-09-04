@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRUEBA DE ROLES</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* --- ESTILOS CSS COMPLETOS --- */
+        :root {
+            --sidebar-bg: #2b7a78;
+            --main-bg: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-color: #333;
+            --red-alert: #e74c3c;
+            --green-ok: #2ecc71;
+            --border-color: #e0e0e0;
+            --shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+        body {
+            font-family: sans-serif;
+            background-color: var(--main-bg);
+            margin: 0;
+            display: flex;
+        }
+        .main-content {
+            flex: 1;
+            padding: 20px;
+        }
+        .main-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+        .tab-link {
+            padding: 10px 20px;
+            border: none;
+            background-color: transparent;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #777;
+            border-bottom: 3px solid transparent;
+        }
+        .tab-link.active {
+            color: var(--sidebar-bg);
+            border-bottom-color: var(--sidebar-bg);
+        }
+        .reservation-list {
+            list-style: none;
+            padding: 0;
+            display: none;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .reservation-list.active { display: flex; }
+        .reservation-item-card {
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+        .main-info {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr auto auto;
+            align-items: center;
+            gap: 15px;
+        }
+        .info-block { display: flex; flex-direction: column; }
+        .info-block .label { font-size: 0.75rem; color: #888; text-transform: uppercase; margin-bottom: 4px; }
+        .status-badge { padding: 5px 12px; border-radius: 20px; font-weight: 600; font-size: 0.8rem; color: #fff; text-align: center; }
+        .status-confirmada { background-color: var(--green-ok); }
+        .status-finalizada { background-color: #777; }
+        .status-cancelada { background-color: var(--red-alert); }
+        .details-section { max-height: 0; overflow: hidden; transition: max-height 0.4s ease-in-out; border-top: 1px solid var(--border-color); padding-top: 0; }
+        .reservation-item-card.expanded .details-section { max-height: 200px; padding-top: 15px; }
+        .role-simulator { display: flex; align-items: center; gap: 10px; background-color: #e0e0e0; padding: 5px 15px; border-radius: 20px; }
+        .cancel-btn { background-color: #fadbd8; color: var(--red-alert); border: none; border-radius: 8px; padding: 8px 12px; font-weight: 600; cursor: pointer; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background-color: white; padding: 30px; border-radius: 15px; width: 90%; max-width: 500px; }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top:20px;}
+        .btn-secondary { background-color: #e9ecef; color: #333; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; }
+        .btn-danger { background-color: var(--red-alert); color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; }
+        textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+        <header class="main-header">
+            <h1><i class="fas fa-tasks"></i> Gestión de Reservas</h1>
+            <div class="role-simulator">
+                <label for="role-selector">Vista como:</label>
+                <select id="role-selector">
+                    <option value="Directivo">Directivo</option>
+                    <option value="Maestro">Maestro (Juan Pérez)</option>
+                </select>
+            </div>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-link active" data-tab="confirmed">Próximas y Confirmadas</button>
+            <button class="tab-link" data-tab="history">Historial</button>
+        </div>
+
+        <div class="reservations-content">
+            <ul id="confirmed-list" class="reservation-list active"></ul>
+            <ul id="history-list" class="reservation-list"></ul>
+        </div>
+    </main>
+
+    <div id="cancel-reservation-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Cancelar Reserva</h3>
+            <p>Estás a punto de cancelar la reserva para "<strong id="cancel-resource-name"></strong>".</p>
+            <div class="form-group">
+                <label for="cancel-reason-input">Motivo de la cancelación (Requerido):</label>
+                <textarea id="cancel-reason-input" rows="3"></textarea>
+            </div>
+            <div class="modal-actions">
+                <button id="close-modal-btn" class="btn-secondary">Cerrar</button>
+                <button id="confirm-cancel-btn" class="btn-danger">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- JAVASCRIPT COMPLETO ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const users = {
+                directivo: { role: 'Directivo', id: 0, name: 'Director/a' },
+                maestro: { role: 'Maestro', id: 1, name: 'Juan Pérez' }
+            };
+            let currentUser = users.directivo;
+
+            const DEMO_DATE = '2025-09-05';
+            let allReservations = [
+                { id: 101, resourceId: 2, profesorId: 2, profesor: 'María García', recurso: 'Aula Magna', tipoRecurso: 'aula', fecha: DEMO_DATE, horaInicio: '10:00', horaFin: '12:00', estado: 'Confirmada', motivoBaja: null },
+                { id: 102, resourceId: 1, profesorId: 1, profesor: 'Juan Pérez', recurso: 'Proyector Epson', tipoRecurso: 'electronico', fecha: DEMO_DATE, horaInicio: '14:00', horaFin: '15:00', estado: 'Confirmada', motivoBaja: null }
+            ];
+
+            const roleSelector = document.getElementById('role-selector');
+            const cancelModal = document.getElementById('cancel-reservation-modal');
+            const confirmedList = document.getElementById('confirmed-list');
+            const historyList = document.getElementById('history-list');
+
+            const createReservationCardHTML = (res) => {
+                const statusClass = `status-${res.estado.toLowerCase()}`;
+                const canCancel = currentUser.role === 'Maestro' && res.estado === 'Confirmada';
+                return `
+                    <li class="reservation-item-card" data-id="${res.id}">
+                        <div class="main-info">
+                            <div class="info-block"><span class="label">Recurso</span><strong>${res.recurso}</strong></div>
+                            <div class="info-block"><span class="label">Fecha y Hora</span><span>${res.fecha} (${res.horaInicio} - ${res.horaFin})</span></div>
+                            <div class="info-block"><span class="label">Profesor</span><span>${res.profesor}</span></div>
+                            <div class="info-block"><span class="status-badge ${statusClass}">${res.estado}</span></div>
+                            ${canCancel ? `<button class="cancel-btn" data-id="${res.id}">Cancelar</button>` : '<div></div>'}
+                            ${res.motivoBaja ? `<button class="expand-btn"><i class="fas fa-chevron-down"></i></button>` : '<div></div>'}
+                        </div>
+                        ${res.motivoBaja ? `<div class="details-section"><strong>Motivo de Baja:</strong><span>${res.motivoBaja}</span></div>` : ''}
+                    </li>`;
+            };
+
+            const renderLists = () => {
+                let reservationsToDisplay = allReservations;
+                if (currentUser.role === 'Maestro') {
+                    reservationsToDisplay = allReservations.filter(res => res.profesorId === currentUser.id);
+                }
+                const confirmed = reservationsToDisplay.filter(res => res.estado === 'Confirmada');
+                const history = reservationsToDisplay.filter(res => ['Finalizada', 'Cancelada'].includes(res.estado));
+                confirmedList.innerHTML = confirmed.map(createReservationCardHTML).join('');
+                historyList.innerHTML = history.map(createReservationCardHTML).join('');
+            };
+
+            const openCancelModal = (reservationId) => {
+                const reservation = allReservations.find(res => res.id === reservationId);
+                if (!reservation) return;
+                cancelModal.querySelector('#cancel-resource-name').textContent = reservation.recurso;
+                cancelModal.style.display = 'flex';
+                const confirmBtn = cancelModal.querySelector('#confirm-cancel-btn');
+                confirmBtn.onclick = () => {
+                    const reason = cancelModal.querySelector('#cancel-reason-input').value.trim();
+                    if (!reason) { alert('El motivo es obligatorio.'); return; }
+                    reservation.estado = 'Cancelada';
+                    reservation.motivoBaja = `Cancelada por ${currentUser.name}: ${reason}`;
+                    closeCancelModal();
+                    renderLists();
+                };
+            };
+
+            const closeCancelModal = () => {
+                cancelModal.querySelector('#cancel-reason-input').value = '';
+                cancelModal.style.display = 'none';
+            };
+
+            roleSelector.addEventListener('change', (e) => {
+                currentUser = e.target.value === 'Maestro' ? users.maestro : users.directivo;
+                renderLists();
+            });
+
+            document.querySelector('.reservations-content').addEventListener('click', (e) => {
+                if (e.target.classList.contains('cancel-btn')) {
+                    openCancelModal(parseInt(e.target.dataset.id));
+                }
+            });
+            
+            cancelModal.querySelector('#close-modal-btn').addEventListener('click', closeCancelModal);
+
+            renderLists();
+        });
+    </script>
+</body>
+</html>

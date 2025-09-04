@@ -1,0 +1,256 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --sidebar-bg: #2b7a78;
+    --main-bg: #f4f7f6;
+    --card-bg: #ffffff;
+    --text-color: #333;
+    --text-light: #f1f1f1;
+    --accent-color: #3aafa9;
+    --red-alert: #e74c3c;
+    --green-ok: #2ecc71;
+    --border-color: #e0e0e0;
+    --shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--main-bg);
+    color: var(--text-color);
+    display: flex;
+}
+
+.dashboard-container {
+    display: flex;
+    width: 100%;
+    min-height: 100vh;
+}
+
+/* --- Barra lateral (Sidebar) --- */
+.sidebar {
+    width: 260px;
+    background-color: var(--sidebar-bg);
+    color: var(--text-light);
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-header { padding: 20px; margin-bottom: 20px; }
+.sidebar-nav ul { list-style: none; }
+.sidebar-nav a {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    padding: 12px 20px;
+    color: var(--text-light);
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+.sidebar-nav a:hover, .sidebar-nav li.active > a { background-color: var(--accent-color); }
+.submenu { list-style: none; padding-left: 20px; max-height: 0; overflow: hidden; transition: max-height 0.4s ease-in-out; }
+.sidebar-nav li.active .submenu { max-height: 500px; }
+.sidebar-nav li.active .icon-right { transform: rotate(90deg); }
+
+/* --- Contenido Principal --- */
+.main-content { flex: 1; padding: 20px; overflow-y: auto; }
+.main-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+.card { background-color: var(--card-bg); border-radius: 15px; padding: 20px; box-shadow: var(--shadow); margin-bottom: 20px; }
+.form-group { margin-bottom: 15px; }
+.form-group-inline { display: flex; gap: 15px; }
+.form-group label { display: block; font-weight: 500; margin-bottom: 5px; font-size: 0.9rem; }
+.form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1rem; }
+.btn-submit, .btn-secondary, .btn-danger { padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: 500; }
+.btn-submit { background-color: var(--sidebar-bg); color: white; }
+.btn-secondary { background-color: #e9ecef; color: #333; }
+.btn-danger { background-color: var(--red-alert); color: white; }
+.list-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+
+/* --- Estilos para Lista de Recursos Interactiva (reserva.html) --- */
+.resource-list-interactive { list-style: none; padding: 0; }
+.resource-item-interactive { display: flex; align-items: center; padding: 16px 8px; border-bottom: 1px solid #f0f0f0; }
+.resource-item-interactive:last-child { border-bottom: none; }
+.resource-item-info { flex-grow: 1; }
+.resource-item-info strong { font-size: 1rem; color: #333; }
+.resource-item-info .type-tag { font-size: 0.75rem; color: #555; background-color: #e9ecef; padding: 2px 8px; border-radius: 10px; margin-left: 8px; text-transform: capitalize; }
+.resource-item-info .blocks-info { font-size: 0.8rem; color: #777; margin-top: 4px; }
+.quantity-container { display: flex; align-items: center; gap: 12px; margin-right: 20px; min-width: 120px; justify-content: center; }
+.resource-item-interactive .quantity-editor { display: none; }
+.resource-item-interactive .quantity-display-text { display: block; }
+.resource-item-interactive.is-editing .quantity-editor { display: flex; }
+.resource-item-interactive.is-editing .quantity-display-text { display: none; }
+.quantity-display-text { font-size: 1.1rem; font-weight: 600; }
+.quantity-editor button { background-color: #f0f0f0; border: 1px solid #ddd; width: 28px; height: 28px; border-radius: 50%; font-size: 1rem; font-weight: bold; cursor: pointer; color: #555; }
+.quantity-editor .quantity-value { font-size: 1.1rem; font-weight: 600; min-width: 25px; text-align: center; }
+.resource-item-actions button { background: none; border: none; font-size: 1.2rem; cursor: pointer; padding: 5px; margin-left: 8px; }
+.resource-item-actions .edit-mode-actions { display: none; }
+.resource-item-interactive.is-editing .edit-mode-actions { display: inline-block; }
+.resource-item-interactive.is-editing .default-actions { display: none; }
+.save-btn { color: var(--green-ok); }
+.cancel-edit-btn { color: var(--red-alert); }
+.edit-btn { color: #555; }
+.delete-btn-x { color: var(--red-alert); font-weight: bold; }
+.blocks-info.is-clickable { cursor: pointer; user-select: none; font-weight: 600; }
+.blocks-info.is-clickable:hover { color: var(--sidebar-bg); }
+.fixed-blocks-details { background-color: #f8f9fa; border-radius: 6px; margin-top: 10px; padding: 0 10px; max-height: 0; overflow: hidden; transition: all 0.4s ease; }
+.resource-item-interactive.blocks-expanded .fixed-blocks-details { max-height: 200px; padding: 10px; }
+.fixed-blocks-details ul { list-style: none; padding-left: 10px; margin: 0; }
+
+/* --- Modales --- */
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); display: none; justify-content: center; align-items: center; z-index: 1000; }
+.modal-content { background-color: white; padding: 30px; border-radius: 15px; width: 90%; max-width: 500px; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+
+/* --- ESTILOS FALTANTES PARA visualizar_lista.html --- */
+.role-simulator { display: flex; align-items: center; gap: 10px; background-color: #e0e0e0; padding: 5px 15px; border-radius: 20px; }
+.role-simulator label { font-weight: 500; font-size: 0.9rem; }
+#role-selector { border: none; background: transparent; font-weight: bold; font-size: 0.9rem; cursor: pointer; }
+.tabs { display: flex; gap: 10px; border-bottom: 2px solid var(--border-color); margin-bottom: 20px; }
+.tab-link { padding: 10px 20px; border: none; background-color: transparent; cursor: pointer; font-size: 1rem; font-weight: 500; color: #777; border-bottom: 3px solid transparent; transition: all 0.2s ease; }
+.tab-link.active { color: var(--sidebar-bg); border-bottom-color: var(--sidebar-bg); }
+.tab-link i { margin-right: 8px; }
+.reservation-list { list-style: none; padding: 0; display: none; flex-direction: column; gap: 15px; }
+.reservation-list.active { display: flex; }
+.reservation-item-card { background-color: #fff; border: 1px solid var(--border-color); border-radius: 10px; padding: 20px; box-shadow: var(--shadow); }
+.main-info { display: grid; grid-template-columns: 2fr 1.5fr 1fr 1fr auto auto; align-items: center; gap: 15px; }
+.info-block { display: flex; flex-direction: column; }
+.info-block strong { font-weight: 600; font-size: 1rem; }
+.info-block span { font-size: 0.9rem; color: #666; }
+.info-block .label { font-size: 0.75rem; color: #888; text-transform: uppercase; margin-bottom: 4px; }
+.status-badge { padding: 5px 12px; border-radius: 20px; font-weight: 600; font-size: 0.8rem; color: #fff; text-align: center; }
+.status-confirmada { background-color: var(--green-ok); }
+.status-finalizada { background-color: #777; }
+.status-cancelada { background-color: var(--red-alert); }
+.cancel-btn { background-color: #fadbd8; color: var(--red-alert); border: none; border-radius: 8px; padding: 8px 12px; font-weight: 600; cursor: pointer; transition: background-color 0.2s; }
+.cancel-btn:hover { background-color: #f5b7b1; }
+.expand-btn { background: #f0f0f0; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; transition: transform 0.3s ease; }
+.reservation-item-card.expanded .expand-btn { transform: rotate(180deg); }
+.details-section { max-height: 0; overflow: hidden; transition: max-height 0.4s ease-in-out; border-top: 1px solid var(--border-color); padding-top: 0; margin-top: 15px;}
+.reservation-item-card.expanded .details-section { max-height: 200px; padding-top: 15px; }
+
+/* --- Estilos para Edición y Desplegables en Lista de Recursos --- */
+
+/* Contenedor para cantidad y su editor */
+.quantity-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-right: 20px;
+    min-width: 120px; /* Ancho mínimo para alinear */
+    justify-content: center;
+}
+
+/* Ocultar/mostrar elementos según el modo edición */
+.resource-item-interactive .quantity-editor { display: none; }
+.resource-item-interactive .quantity-display-text { display: block; }
+
+.resource-item-interactive.is-editing .quantity-editor { display: flex; }
+.resource-item-interactive.is-editing .quantity-display-text { display: none; }
+
+.quantity-display-text {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+/* Estilo para los botones de Guardar/Cancelar en modo edición */
+.resource-item-actions .edit-mode-actions { display: none; }
+.resource-item-interactive.is-editing .edit-mode-actions { display: inline-block; }
+.resource-item-interactive.is-editing .default-actions { display: none; }
+.save-btn { color: var(--green-ok); }
+.cancel-edit-btn { color: var(--red-alert); }
+
+/* Estilos para el desplegable de horarios fijos */
+.blocks-info.is-clickable {
+    cursor: pointer;
+    user-select: none;
+    font-weight: 600;
+}
+.blocks-info.is-clickable:hover { color: var(--sidebar-bg); }
+.fixed-blocks-details { background-color: #f8f9fa; border-radius: 6px; margin-top: 10px; padding: 0 10px; max-height: 0; overflow: hidden; transition: all 0.4s ease; }
+.resource-item-interactive.blocks-expanded .fixed-blocks-details { max-height: 200px; padding: 10px; }
+.fixed-blocks-details ul { list-style: none; padding-left: 10px; margin: 0; }
+.fixed-blocks-details li { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; }
+.fixed-blocks-details .delete-fixed-block-btn { background: none; border: none; color: var(--red-alert); font-weight: bold; cursor: pointer; }
+/* --- Estilos para la gestión de Bloqueos Fijos --- */
+
+.fixed-blocks-details ul {
+    list-style: none;
+    padding-left: 10px;
+    margin: 0;
+}
+
+/* Estilo para cada item en la lista de bloqueos */
+.fixed-blocks-details li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    font-size: 0.9rem;
+}
+
+/* Estilo para el botón de eliminar (X) de un bloqueo */
+.delete-fixed-block-btn {
+    background: none;
+    border: none;
+    color: var(--red-alert);
+    font-weight: bold;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0 5px;
+}
+
+/* Estilo para el botón "+ Añadir otro" */
+.add-fixed-block-btn {
+    width: 100%;
+    margin-top: 10px;
+    padding: 8px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+/* --- Estilos para Formulario Progresivo por Pasos (crear_reserva.html) --- */
+
+.form-container-steps {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Cada paso es una tarjeta, inicialmente oculta */
+.step-card {
+    margin-bottom: 20px;
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    padding: 0;
+    border: none;
+    transition: all 0.5s ease-in-out;
+}
+
+/* Cuando un paso tiene la clase .active, se muestra */
+.step-card.active {
+    opacity: 1;
+    max-height: 1000px; /* Un valor alto para permitir que el contenido se expanda */
+    padding: 20px;
+    border: 1px solid var(--border-color);
+}
+
+/* El primer paso siempre está visible por defecto */
+#step-resource.step-card {
+    opacity: 1;
+    max-height: 1000px;
+    padding: 20px;
+    border: 1px solid var(--border-color);
+}
+
+/* Estilo para los campos de hora deshabilitados */
+option:disabled {
+    text-decoration: line-through;
+    color: #aaa;
+    background-color: #f0f0f0;
+}
