@@ -1,7 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // --- INICIALIZACIÓN DE DATOS ---
     let allResources = JSON.parse(localStorage.getItem('schoolResources'));
     let allReservations = JSON.parse(localStorage.getItem('schoolReservations'));
-    const DEMO_DATE = '2025-09-05';
+    const DEMO_DATE = '2025-09-05'; // Viernes
 
     if (!allResources || allResources.length === 0) {
         console.log("CREAR_RESERVA: No se encontraron recursos. Creando un set de datos de ejemplo completo...");
@@ -17,6 +18,8 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('schoolReservations', JSON.stringify(allReservations));
     }
     
+    // --- REFERENCIAS AL DOM ---
+    const form = document.getElementById('reservation-form');
     const resourceSelect = document.getElementById('resource-select');
     const dateInput = document.getElementById('reservation-date');
     const startTimeSelect = document.getElementById('start-time-select');
@@ -28,12 +31,14 @@ document.addEventListener('DOMContentLoaded', () => {
         submit: document.getElementById('step-submit')
     };
     
+    // --- FUNCIONES AUXILIARES ---
     const timeToMinutes = (timeStr) => {
         if (!timeStr) return 0;
         const [hours, minutes] = timeStr.split(':').map(Number);
         return hours * 60 + minutes;
     };
     
+    // --- FUNCIONES PRINCIPALES ---
     const updateAvailability = () => {
         steps.time.classList.remove('active');
         steps.details.classList.remove('active');
@@ -119,7 +124,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     
     // --- EVENT LISTENERS ---
-
     resourceSelect.addEventListener('change', () => {
         steps.date.classList.add('active');
         dateInput.value = '';
@@ -129,21 +133,22 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     dateInput.addEventListener('change', updateAvailability);
-    
     startTimeSelect.addEventListener('change', updateEndTimeOptions);
-
+    
     endTimeSelect.addEventListener('change', () => { 
         if (endTimeSelect.value) {
             steps.details.classList.add('active');
+            const allFilled = [...document.querySelectorAll('#step-details [required]')].every(field => field.value.trim() !== '');
+            if(allFilled) {
+                steps.submit.classList.add('active');
+                document.querySelector('#step-submit button').disabled = false;
+            }
         }
     });
 
-    // --- BLOQUE DE CÓDIGO FALTANTE AÑADIDO AQUÍ ---
-    // Este listener se encarga de revisar la sección de detalles y mostrar el botón de envío.
     document.getElementById('step-details').addEventListener('input', () => {
         const allRequiredFields = document.querySelectorAll('#step-details [required]');
         const allFilled = [...allRequiredFields].every(field => field.value.trim() !== '');
-        
         const submitButton = document.querySelector('#step-submit button');
 
         if (allFilled) {
@@ -154,7 +159,57 @@ document.addEventListener('DOMContentLoaded', () => {
             submitButton.disabled = true;
         }
     });
-    // --- FIN DEL BLOQUE AÑADIDO ---
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const resourceId = parseInt(resourceSelect.value);
+        const selectedResource = allResources.find(r => r.id === resourceId);
+
+        const newReservation = {
+            id: Date.now(),
+            resourceId: resourceId,
+            recurso: selectedResource.name,
+            tipoRecurso: selectedResource.type,
+            fecha: dateInput.value,
+            horaInicio: startTimeSelect.value,
+            horaFin: endTimeSelect.value,
+            nivel: document.getElementById('level-select').value,
+            curso: document.getElementById('course-input').value,
+            profesor: document.getElementById('professor-input').value,
+            profesorId: 1,
+            descripcion: document.getElementById('description-input').value,
+            estado: 'Confirmada',
+            motivoBaja: null
+        };
+        
+        const start = timeToMinutes(newReservation.horaInicio);
+        const end = timeToMinutes(newReservation.horaFin);
+        const isOverlapping = allReservations.some(res => 
+            res.resourceId === newReservation.resourceId &&
+            res.fecha === newReservation.fecha &&
+            res.estado !== 'Cancelada' &&
+            start < timeToMinutes(res.horaFin) &&
+            end > timeToMinutes(res.horaInicio)
+        );
+
+        if (isOverlapping) {
+            alert('¡Error! El horario seleccionado se solapa con una reserva existente.');
+            return;
+        }
+
+        allReservations.push(newReservation);
+        localStorage.setItem('schoolReservations', JSON.stringify(allReservations));
+
+        alert('¡Reserva creada con éxito!');
+        
+        form.reset();
+        resourceSelect.value = '';
+        steps.date.classList.remove('active');
+        steps.time.classList.remove('active');
+        steps.details.classList.remove('active');
+        steps.submit.classList.remove('active');
+    });
 
     // --- INICIALIZACIÓN ---
     allResources.forEach(res => resourceSelect.add(new Option(`${res.name} (${res.type})`, res.id)));
